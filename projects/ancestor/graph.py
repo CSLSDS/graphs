@@ -16,12 +16,17 @@ class Graph:
         # TODO check functionality
         self.vertices[vertex_id] = set()
 
+    def isvertex(self, vertex):
+        return vertex in self.vertices
+
     def add_edge(self, v1, v2):
         """
         Add a directed edge to the graph.
         """
         # TODO check functionality
-        self.vertices[v1].add(v2)
+        if v1 in self.vertices and v2 in self.vertices:
+            self.vertices[v1].add(v2)
+            return
 
     def get_neighbors(self, vertex_id):
         """
@@ -40,7 +45,7 @@ class Graph:
         q = Queue()
         # add starting vertex id
         q.enqueue(starting_vertex)
-        # create set for visited verts
+        # create set for visited visited
         visited = set()
         # while q is not empty
         while q.size() > 0:
@@ -64,7 +69,7 @@ class Graph:
         stack = Stack()
         # add starting vertex id
         stack.push(starting_vertex)
-        # create set for visited verts
+        # create set for visited visited
         visited = set()
         # while q is not empty
         while stack.size() > 0:
@@ -128,19 +133,19 @@ class Graph:
                   # APPEND THE NEIGHBOR TO THE BACK
                 ''' Valid BFS path: [1, 2, 4, 6] '''
 
-    def dfs(self, starting_vertex, destination_vertex):
-        """
+    def dfs(self, starting_vertex):
+        """ MODIFIED TO GET ANCESTOR
         Return a list containing a path from
         starting_vertex to destination_vertex in
         depth-first order.
         """
-        # TODO 
         # Create an empty stack and push A PATH TO the starting vertex ID
         stack = Stack()
         path = [starting_vertex]
         stack.push(path)
         # Create a Set to store visited vertices
         visited = set()
+        paths = []
         # While the STACK is not empty...
         while stack.size() > 0:
             # pop the first PATH
@@ -149,21 +154,33 @@ class Graph:
             v = poppath[-1]
             # If that vertex has not been visited...
             if v not in visited:
-                # CHECK IF IT'S THE TARGET
-                if v == destination_vertex:
-                  # IF SO, RETURN PATH
-                    return poppath
                 # Mark it as visited...
                 visited.add(v)
-                # Then add A PATH TO its neighbors to the top of the stack
-                for neighbor in self.get_neighbors(v):
-                    npath = poppath.copy()
-                    npath.append(neighbor)
-                    stack.push(npath)
-                  # COPY THE PATH
-                  # APPEND THE NEIGHBOR TO THE BACK
-                ''' Valid DFS [1, 2, 4, 6], [1, 2, 4, 7, 6]'''
+                if len(self.vertices[v]) == 0:
+                    paths.append(poppath)
+                for nextv in self.vertices[v]:
+                    if nextv not in visited:
+                        new = poppath.copy()
+                        new.append(nextv)
+                        stack.push(new)
 
+        longest = float('-inf')
+        ancestor = float('inf')
+#        longest = 0
+#        ancestor = -1
+        for path in paths:
+            if len(path) > longest:
+                # check for and assign longest path(s)
+                longest = len(path)
+                ancestor = path[-1]
+            if len(path) == longest:
+                # check which is lower to break ties
+                ancestor = min(ancestor, path[-1])
+        if ancestor == starting_vertex:
+            ancestor = -1
+        return ancestor
+
+                
     def dfs_recursive(self, starting_vertex, destination_vertex, visited=None, path=None):
         """
         Return a list containing a path from
